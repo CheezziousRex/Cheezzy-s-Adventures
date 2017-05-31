@@ -1,34 +1,9 @@
 import sys
 import random
 
-#Ставим первый уровень по умолчанию
-lvl = 1
+lvl = 0
 
-class Me:
-	'''Класс протагониста'''
-	def __init__(self, name):
-		self.name = name
-		hp = 1000
-		self.hp = hp
-
-		if lvl == 1:                  #Алгоритм увеличивает урон
-			dmg = 15                  #с переходом
-		else:                         #на новый
-			dmg = 15 + ((lvl-1) * 13) #уровень
-
-		self.dmg = dmg
-
-	#Выведет статы протагониста
-	def myStats(self):
-		print("Здоровье: ", self.hp)
-		print("Дамаг: ", self.dmg)
-		print("Имя: ", self.name)
-
-#Создаем единственный экземпляр протагониста
-print()
-me = Me(input('Введи своё имя: '))
-
-#Имена врагов##########################################################
+# Имена врагов ########################################################
 
 goblinNames = ["Бульборок", "Киртан", "Горбаг", "Сталлемахс", "Шаграт",
 	           "Златотекс", "Веслолихс", "Грязнотукс", "Веслольс",
@@ -45,355 +20,312 @@ trollNames = ["Ленго", "Зумбарала", "Растоджи", "Муна�
 
 dragonNames = ["Портурнакс", "Алдуин"]
 
-#Классы врагов#########################################################
+# Создание классов ####################################################
 
-class Goblin:
-	'''Класс гоблинов'''
-	def __init__(self):
-		#Задает гоблину хп в диапазоне
-		hp = random.randint(45,60) 
-		self.hp = hp
-
-		#Урон
-		dmg = 5
-		self.dmg = dmg
-
-		#Берет рандомное имя из списка с именами
-		name = goblinNames[random.randint(0, len(goblinNames) - 1)] 
-		self.name = name
-
-	def hit(self):
-		#Коэффицент шанса попадания\промаха
-		chance = random.randint(0, 3)
-
-		#С шансом 3 к 4 ты пизданешь ублюдка
-		if (chance == 1) or (chance == 2) or (chance == 3): 
-			self.hp -= me.dmg
-			if self.hp <= 0:
-				print('Ты убил гоблина!')
-			else:
-				print('Ты ударил гоблина!')
-		else:
-			#С шансом 1 к 4 ты промажешь
-			print('промах!') 
-
+class Creature:
+	'''Суперкласс для всех существ'''
+	#Выводит статы существа
 	def stats(self):
-		#Показывает статы уебка (пока только здоровье и имя)
-		print('Здоровье: ', self.hp) 
-		print('Имя: ', self.name)
-
-	
-
+		print("HP: ", self.hp)
+		print("DMG: ", self.dmg)
+		print("Race: ", self.race)
+		print("Name: ", self.name)
+	#Используется для нанесения урона протагонисту другими существами
 	def hitHero(self):
 		me.hp -= self.dmg
-		print()
-		print('Тебя пизданул гоблин, отняв 5 хп!')
+		if me.hp > 0:
+			print("Вас ударил", self.race, ", отняв ", self.dmg, "урона")
+		else:
+			print("Вас убил", self.race, ", отняв ", self.dmg, "урона")
+			print("Ты проиграл, лошара!")
+			sys.exit()
+	#Функия, обратная предыдущей
+	def hitEnemy(self):
+		self.hp -= me.dmg
+		if self.hp > 0:
+			print("Вы ударили", self.race, ", отняв", me.dmg, "урона")
+		else:
+			print("Вы убили", self.race, ", отняв", me.dmg, "урона")
 
-#Построение классов для других врагов аналогично
+class Protagonist(Creature):
+	'''Класс протагониста'''
+	def __init__(self, name):
+		self.name = name
 
-class Dworf:
+		hp = 100
+		self.hp = hp
+
+		race = "Человек"
+		self.race = race
+
+		if lvl == 1:                  
+			dmg = 15                  
+		else:                         
+			dmg = 15 + ((lvl-1) * 13) 
+		self.dmg = dmg
+
+class Goblin(Creature):
+	'''Класс гоблинов'''
+	def __init__(self):
+		hp = random.randint(45, 60)
+		self.hp = hp
+		race = "Гоблин"
+		self.race = race
+		dmg = 5
+		self.dmg = dmg
+		name = goblinNames[random.randint(0, len(goblinNames) - 1)] 
+		self.name = name
+ 
+class Dworf(Creature):
 	'''Класс дворфов'''
 	def __init__(self):
 		hp = random.randint(55,75)
 		self.hp = hp
-
+		race = "Дворф"
+		self.race = race
 		dmg = 7
 		self.dmg = dmg
-
 		name = dworfNames[random.randint(0, len(dworfNames) - 1)]
 		self.name = name
 
-	def hit(self):
-		chance = random.randint(0, 3)
-
-		if (chance == 1) or (chance == 2) or (chance == 3):
-			self.hp -= me.dmg
-			if self.hp <= 0:
-				print('Ты убил дворфа!')
-			else:
-				print('Ты ударил дворфа!')
-		else:
-			print('промах!')
-
-	def stats(self):
-		print('Здоровье: ', self.hp) 
-		print('Имя: ', self.name)
-
-	def hitHero(self):
-		me.hp -= self.dmg
-		print()
-		print('Тебя пизданул дворф, отняв 7 хп!')
-
-class Troll:
+class Troll(Creature):
 	'''Класс троллей'''
 	def __init__(self):
 		hp = random.randint(90,100)
 		self.hp = hp
-
+		race = "Тролль"
+		self.race = race
 		dmg = 10
 		self.dmg = dmg
-
 		name = trollNames[random.randint(0, len(trollNames) - 1)]
 		self.name = name
 
-	def hit(self):
-		chance = random.randint(0, 3)
-
-		if (chance == 1) or (chance == 2) or (chance == 3):
-			self.hp -= me.dmg
-			if self.hp <= 0:
-				print('Ты убил тролля!')
-			else:
-				print('Ты ударил тролля!')
-		else:
-			print('промах!')
-
-	def stats(self):
-		print('Здоровье: ', self.hp) 
-		print('Имя: ', self.name)
-
-	def hitHero(self):
-		me.hp -= self.dmg
-		print()
-		print('Тебя пизданул тролль, отняв 10 хп!')
-
-class Ork:
+class Ork(Creature):
 	'''Класс орков'''
 	def __init__(self):
 		hp = random.randint(110,160)
 		self.hp = hp
-
-		dmg = 15
+		race = "Орк"
+		self.race = race
+		dmg = 20
 		self.dmg = dmg
-
 		name = orkNames[random.randint(0, len(orkNames) - 1)]
 		self.name = name
 
-	def hit(self):
-		chance = random.randint(0, 3)
-
-		if (chance == 1) or (chance == 2) or (chance == 3):
-			self.hp -= me.dmg
-			if self.hp <= 0:
-				print('Ты убил орка!')
-			else:
-				print('Ты ударил орка!')
-		else:
-			print('промах!')
-
-	def stats(self):
-		print('Здоровье: ', self.hp) 
-		print('Имя: ', self.name)
-
-	
-
-	def hitHero(self):
-		me.hp -= self.dmg
-		print()
-		print('Тебя пизданул орк, отняв 15 хп!')
-
-class Dragon:
+class Dragon(Creature):
 	'''Класс драконов'''
 	def __init__(self):
-		hp = random.randint(150, 230)
+		hp = random.randint(150, 300)
 		self.hp = hp
-
+		race = "Дракон"
+		self.race = race
 		dmg = 30
 		self.dmg = dmg
-
 		name = dragonNames[random.randint(0, len(dragonNames) - 1)]
 		self.name = name
 
-	def hit(self):
-		chance = random.randint(0, 3)
-
-		if (chance == 1) or (chance == 2) or (chance == 3):
-			self.hp -= me.dmg
-			if self.hp <= 0:
-				print('Ты убил дракона!')
-			else:
-				print('Ты ударил дракона!')
-		else:
-			print('Ты промахнулся, еблан!')
-
-	def stats(self):
-		print('Здоровье: ', self.hp) 
-		print('Имя: ', self.name)
-
-	
-
-	def hitHero(self):
-		me.hp -= self.dmg
-		print()
-		print('Дракон поджарил тебе жопу, отняв 50 хп!')
+name = input('Введи своё имя: ')
 
 # LEVEL 1 #############################################################
+
+lvl += 1
+me = Protagonist(name)
+
 print()
 print("Приветствую тебя,", me.name)
 print('Здесь должен быть какой-то сюжетный текст, но его не будет. ')
 print('Просто иди и пизди всех уёбков, которых встретишь далее.')
 print('Подробнее о всей хуйне можно почитать в readme файле.')
 print()
+
+goblin = Goblin()
+
 print("Перед тобой гоблин.")
-print()
-print("1.Пиздануть эту зеленую сраку")
-print("2.Показать имя и здоровье зеленого уёбка")
-print("3.Показать имя и здоровье великого тебя")
-print("4.Чтобы выйти из игры")
-print()
-
-#Создаем экземпляр врага
-goblin = Goblin() 
-
-#Цикл позволяет выполять какие-либо действия пока не умрет враг
-while (goblin.hp > 0):       
+def cycleLVL1():
+	print()
+	print("1.Пиздануть эту зеленую сраку")
+	print("2.Показать имя и здоровье зеленого уёбка")
+	print("3.Показать имя и здоровье великого тебя")
+	print("4.Чтобы выйти из игры")
+	print()
+cycleLVL1()
+#Цикл выполняет действия, выбранные персонажем, пока не умрет сам
+#персонаж или враг
+#Для других уровней цикл аналогичный
+while (goblin.hp > 0) and (me.hp > 0):       
 	action = input()
 	print()
 
 	if action == '1':
-		goblin.hit()
-		goblin.hitHero()
+		goblin.hitEnemy()
+		if goblin.hp > 0:
+			goblin.hitHero()
 
 	elif action == '2':
 		goblin.stats()
 
 	elif action == '3':
-		me.myStats()
+		me.stats()
 
 	elif action == '4':
 		print('Пока')
 		sys.exit()
-	print()
-
-#Схема для других левелов аналогична
+	if goblin.hp > 0:
+		cycleLVL1()
 
 # LEVEL 2 #############################################################
 
 lvl += 1
+me = Protagonist(name)
 dworf = Dworf()
+
 print()
 print("Перед тобой дворф.")
-print()
-print("1.Пиздануть карлана")
-print("2.Показать имя и здоровье низкорослика")
-print("3.Показать имя и здоровье великого тебя")
-print("4.Чтобы выйти из игры")
-print()
-while (dworf.hp > 0):
+def cycleLVL2():
+	print()
+	print("1.Пиздануть карлана")
+	print("2.Показать имя и здоровье низкорослика")
+	print("3.Показать имя и здоровье великого тебя")
+	print("4.Чтобы выйти из игры")
+	print()
+cycleLVL2()
+
+while (dworf.hp > 0) and (me.hp > 0):
 	action = input()
 	print()
 
 	if action == '1':
-		dworf.hit()
-		dworf.hitHero()
+		dworf.hitEnemy()
+		if dworf.hp > 0:
+			dworf.hitHero()
 
 	elif action == '2':
 		dworf.stats()
 
 	elif action == '3':
-		me.myStats()
+		me.stats()
 
 	elif action == '4':
 		print('Пока')
 		sys.exit()
-	print()
+	if dworf.hp > 0:
+		cycleLVL2()
 
 # LEVEL 3 #############################################################
 
 lvl += 1
+me = Protagonist(name)
 troll = Troll()
+
 print()
 print("Перед тобой тролль.")
-print()
-print("1.Пиздануть этот вонючий хуй")
-print("2.Показать имя и здоровье неведомой хуиты")
-print("3.Показать имя и здоровье великого тебя")
-print("4.Чтобы выйти из игры")
-print()
-while (troll.hp > 0):
+def cycleLVL3():
+	print()
+	print("1.Пиздануть этот вонючий хуй")
+	print("2.Показать имя и здоровье неведомой хуиты")
+	print("3.Показать имя и здоровье великого тебя")
+	print("4.Чтобы выйти из игры")
+	print()
+cycleLVL3()
+
+while (troll.hp > 0) and (me.hp > 0):
 	action = input()
 	print()
 
 	if action == '1':
-		troll.hit()
-		troll.hitHero()
+		troll.hitEnemy()
+		if troll.hp > 0:
+			troll.hitHero()
 
 	elif action == '2':
 		troll.stats()
 
 	elif action == '3':
-		me.myStats()
+		me.stats()
 
 	elif action == '4':
 		print('Пока')
-		sys.exit()	
-	print()
+		sys.exit()
+	if troll.hp > 0:
+		cycleLVL3()
 
 # LEVEL 4 #############################################################
 
 lvl += 1
+me = Protagonist(name)
 ork = Ork()
+
 print()
 print("Перед тобой орк.")
-print()
-print("1.Пиздануть перекаченного ублюдка")
-print("2.Показать имя и здоровье кочки")
-print("3.Показать имя и здоровье великого тебя")
-print("4.Чтобы выйти из игры")
-print()
-while (ork.hp > 0):
+def cycleLVL4():
+	print()
+	print("1.Пиздануть перекаченного ублюдка")
+	print("2.Показать имя и здоровье кочки")
+	print("3.Показать имя и здоровье великого тебя")
+	print("4.Чтобы выйти из игры")
+	print()
+cycleLVL4()
+
+while (ork.hp > 0) and (me.hp > 0):
 	action = input()
 	print()
 
 	if action == '1':
-		ork.hit()
-		troll.hitHero()
+		ork.hitEnemy()
+		if ork.hp > 0:
+			ork.hitHero()
 
 	elif action == '2':
 		ork.stats()
 
 	elif action == '3':
-		me.myStats()
+		me.stats()
 
 	elif action == '4':
 		print('Пока')
 		sys.exit()
-	print()
+	if ork.hp > 0:
+		cycleLVL4()
 
 # LEVEL 5 #############################################################
 
 lvl += 1
+me = Protagonist(name)
 dragon = Dragon()
 
+print()
 print("Смотри ка. Это, мать его, босс!")
 print("Быстро дай ему банана, иначе он сам тебя пизданет!")
 print()
-print("Перед тобой дракон")
-print()
-print("1.Пиздануть огнежопого")
-print("2.Показать имя и здоровье рептилоида")
-print("3.Показать имя и здоровье великого тебя")
-print("4.Чтобы выйти из игры")
-print()
+print("Перед тобой дракон.")
+def cycleLVL5():
+	print()
+	print("1.Пиздануть огнежопого")
+	print("2.Показать имя и здоровье рептилоида")
+	print("3.Показать имя и здоровье великого тебя")
+	print("4.Чтобы выйти из игры")
+	print()
+cycleLVL5()
 
-while (dragon.hp > 0):
+while (dragon.hp > 0) and (me.hp > 0):
 	action = input()
 	print()
 
 	if action == '1':
-		dragon.hit()
-		dragon.hitHero()
+		dragon.hitEnemy()
+		if dragon.hp > 0:
+			dragon.hitHero()
 
 	elif action == '2':
 		dragon.stats()
 
 	elif action == '3':
-		me.myStats()
+		me.stats()
 
 	elif action == '4':
 		print('Пока')
 		sys.exit()
-	print()
-
-
- 
+	if dragon.hp > 0:
+		cycleLVL5()
+print()
+print("Конгратулейшонс! Ты прошел эту ебучую игру.")
